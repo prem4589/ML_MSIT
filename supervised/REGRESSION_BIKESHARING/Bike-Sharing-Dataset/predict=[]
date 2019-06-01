@@ -1,0 +1,42 @@
+predict=[]
+k=5
+def euc_distance(testrow,trainrow,length):
+    distance=0
+    for i in range(length):
+        distance+=pow((testrow[i]-trainrow[i]),2)
+    return math.sqrt(distance)
+def getNeighbours(traindata,testRow,k):
+    distance_with_train=[]
+    length=len(testRow)-1
+    for x in range(len(traindata)):
+        dist=euc_distance(testRow,traindata[x],length)
+        distance_with_train.append((traindata[x],dist))
+    distance_with_train.sort(key=operator.itemgetter(1))
+    neighbors = []
+    for x in range(k):
+        neighbors.append(distance_with_train[x][0])
+    return neighbors
+def getResponse(neighbors):
+    votes = {}
+    for x in range(len(neighbors)):
+        response = neighbors[x][-1]
+        if response in votes:
+            votes[response] += 1
+        else:
+            votes[response] = 1
+    sortedVotes = sorted(votes.items(), key=operator.itemgetter(1), reverse=True)
+    return sortedVotes[0][0]
+def getAccuracy(xtest, predict):
+    correct = 0
+    for x in range(len(xtest)):
+        if xtest[x][-1] == predict[x]:
+            correct += 1
+    return (correct/float(len(xtest))) * 100.0
+for i in range(len(xtest)):
+    neighbour=getNeighbours(xtrain,xtest[i],k)
+#     print(neighbour)
+    result = getResponse(neighbour)
+    predict.append(result)
+    print('> predicted=' + repr(result) + ', actual=' + repr(xtest[i][-1]))
+accuracy = getAccuracy(xtest, predict)
+print('Accuracy: ' + repr(accuracy) + '%')
